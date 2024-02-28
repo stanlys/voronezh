@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 // @ts-ignore
 import * as mapsData from 'devextreme-dist/js/vectormap-data/world.js';
+import * as L from 'leaflet';
+import '@geoman-io/leaflet-geoman-free';
+import { Observable, Subscriber } from 'rxjs';
+import { LAYERS } from './layers';
+import { ValueChangedEvent } from 'devextreme/ui/select_box';
 
 const RADIANS = Math.PI / 180;
 const WAGNER_6_P_LAT = Math.PI / Math.sqrt(3);
@@ -17,8 +22,12 @@ export class AppComponent {
   worldMap: any = mapsData.world;
 
   public isViewVoronezh = true;
+  public layerList = LAYERS;
 
-  constructor() {}
+  selectedLayer: L.Layer;
+  constructor() {
+    this.selectedLayer = LAYERS[0].layer;
+  }
 
   projection: any;
   customProjection: any;
@@ -65,9 +74,10 @@ export class AppComponent {
 
   public toggleView(): void {
     this.isViewVoronezh = !this.isViewVoronezh;
+    if (this.map) this.map.pm.toggleControls();
   }
 
-  public voronezh = {
+  public VORONEZH = {
     type: 'FeatureCollection',
     features: [
       {
@@ -624,4 +634,137 @@ export class AppComponent {
       },
     ],
   };
+
+  map: L.Map | null = null;
+
+  public ngAfterViewInit(): void {
+    this.loadMap();
+  }
+
+  private getCurrentPosition(): any {
+    return new Observable((observer: Subscriber<any>) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position: any) => {
+          observer.next({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          observer.complete();
+        });
+      } else {
+        observer.error();
+      }
+    });
+  }
+
+  private loadMap(): void {
+    this.map = L.map('map', { pmIgnore: false }).setView([0, 0], 1);
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //   attribution: 'Map data &copy; ',
+    //   maxZoom: 20,
+    //   id: 'mapbox/streets-v11',
+    //   tileSize: 512,
+    //   zoomOffset: -1,
+    // }).addTo(this.map);
+
+    L.marker([51.50915, -0.096112], { pmIgnore: true }).addTo(this.map);
+    if (this.map)
+      this.map.pm.addControls({
+        position: 'topleft',
+        drawCircleMarker: false,
+        rotateMode: false,
+        drawMarker: false,
+        drawCircle: false,
+      });
+
+    var drawnItems = new L.FeatureGroup();
+
+    this.map.pm.setLang('ru');
+    if (this.map) {
+      this.getCurrentPosition().subscribe((position: any) => {
+        if (this.map)
+          this.map.flyTo([position.latitude, position.longitude], 13);
+
+        const icon = L.icon({
+          iconUrl: 'assets/MarksIcons/car.png',
+          shadowUrl: 'assets/MarksIcons/ylw-pushpin.png',
+          popupAnchor: [13, 0],
+        });
+
+        if (this.map) {
+          const marker = L.marker([position.latitude, position.longitude], {
+            icon,
+          }).bindPopup('Hello Leaflet');
+          marker.addTo(this.map);
+        }
+      });
+    }
+
+    var drawnItems = new L.FeatureGroup();
+    this.map.addLayer(drawnItems);
+
+    var openTopoMap = L.tileLayer(
+      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: 'Map data: © OpenStreetMap contributors, SRTM ',
+      }
+    );
+
+    // this.map.removeLayer(this.selectedLayer);
+
+    // var baseMaps = {
+    //   OpenStreetMap: osm,
+    //   'OpenStreetMap.HOT': osmHOT,
+    //   'Google гибрид': google,
+    //   'Yandex гибрид': yandex,
+    //   '2gis': gis2,
+    // };
+
+    // var layerControl = L.control.layers(baseMaps).addTo(this.map);
+    this.map.addLayer(this.selectedLayer);
+
+    this.map.on('layeradd', (e) => {
+      console.log(e);
+    });
+
+    L.geoJSON(this.VORONEZH as GeoJSON.GeoJsonObject)
+      .bindPopup('Воронежская область')
+      .addTo(this.map);
+
+    // Create and add a draw layer
+    // var drawLayer = new L.FeatureGroup();
+    // this.map.addLayer(drawLayer);
+    // var drawControl = new L.Control({
+    //   position: 'bottomright',
+    // });
+    // this.map.addControl(drawControl);
+    // this.map.on('draw:created', (event: any) => {
+    //   var type = event.layerType;
+    //   if (type == 'polygon') {
+    //     // Get the polygon coordinates
+    //     var coordinates = event.layer.getLatLngs();
+    //     // Do something with the polygon coordinates here
+    //     alert(`The polygon coordinates are: ${coordinates}`);
+    //   }
+    // });
+
+    // var drawControl = new L.Control.Draw({
+    //   edit: {
+    //     featureGroup: drawnItems,
+    //   },
+    // });
+    // this.map.addControl(drawControl);
+  }
+
+  onSelectLayer(changeLayer: ValueChangedEvent): void {
+    if (this.map) {
+      this.selectedLayer.removeFrom(this.map);
+      const _selectedLayer =
+        this.layerList.find((l) => l.id === changeLayer.value) ||
+        this.layerList[0];
+      this.selectedLayer = _selectedLayer.layer;
+      this.selectedLayer.addTo(this.map);
+    }
+  }
 }

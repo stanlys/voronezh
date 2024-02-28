@@ -3,11 +3,21 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { DxButtonModule, DxVectorMapModule } from 'devextreme-angular';
+import {
+  DxButtonModule,
+  DxSelectBoxModule,
+  DxVectorMapModule,
+} from 'devextreme-angular';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, DxButtonModule, DxVectorMapModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    DxButtonModule,
+    DxVectorMapModule,
+    DxSelectBoxModule,
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
