@@ -1,56 +1,16 @@
-<dx-button stylingMode="outlined" type="success" (onClick)="toggleView()">
+<!-- <dx-button stylingMode="outlined" type="success" (onClick)="toggleView()">
   fgdfgdf
 </dx-button>
-<router-outlet></router-outlet>
+<router-outlet></router-outlet> -->
 
-<div class="container-fluid py-3">
-  <h1>Angular Leaflet</h1>
-  <dx-select-box
-    [dataSource]="layerList"
-    displayExpr="layerName"
-    valueExpr="id"
-    [selectedItem]="selectedLayer"
-    (onValueChanged)="onSelectLayer($event)"
-  ></dx-select-box>
-  <div id="map"></div>
-</div>
-
-<!--
-<dx-vector-map id="vector-map" [bounds]="[38, 45, 42, 55]">
-  <dxo-loading-indicator [show]="true"></dxo-loading-indicator>
-
-  <dxo-title
-    text="Map of Pangaea"
-    subtitle="with modern continental outlines"
-  ></dxo-title>
-   <dxi-layer
-    [dataSource]="worldMap"
-    borderColor="#ffffff"
-    [hoverEnabled]="false"
-  ></dxi-layer>
-
-  <dxi-layer
-    [dataSource]="voronezh"
-    borderColor="#00ff00"
-    type="area"
-    [hoverEnabled]="true"
-    *ngIf="isViewVoronezh"
-  ></dxi-layer>
-
-   <dxi-layer
-    [dataSource]="worldMap"
-    borderColor="#ffffff"
-    [hoverEnabled]="false"
-  ></dxi-layer>
-   <dxi-layer
-    [dataSource]="weather"
-    dataField="url"
-    elementType="image"
-    type="marker"
-    [size]="51"
-  >
-    <dxo-label dataField="text">
-      <dxo-font [size]="14"></dxo-font>
-    </dxo-label>
-  </dxi-layer>
-</dx-vector-map> -->
+<dx-tab-panel class="full">
+  <dxi-item title="Приветствие" icon="comment">
+    <app-hello></app-hello>
+  </dxi-item>
+  <dxi-item title="Карта" icon="map">
+    <app-map></app-map>
+  </dxi-item>
+  <dxi-item title="Role" icon="isnotblank" badge="new">
+    <p></p>
+  </dxi-item>
+</dx-tab-panel>

@@ -1,0 +1,33 @@
+<div class="pad-10">
+  <section class="align-center">
+    <dx-button type="success" *ngIf="map == null" (onClick)="createMap()"
+      >Создать карту</dx-button
+    >
+    <dx-button
+      type="success"
+      *ngIf="map !== null"
+      [disabled]="address === ''"
+      icon="check"
+      text="Начать"
+    ></dx-button>
+  </section>
+
+  <!-- <dx-slider
+    [min]="50"
+    [max]="100"
+    [value]="opacityValue"
+    (onValueChanged)="changedOpacity($event)"
+  >
+  </dx-slider> -->
+  <!-- <dx-select-box
+    [dataSource]="layerList"
+    displayExpr="layerName"
+    valueExpr="id"
+    [selectedItem]="selectedLayer"
+    (onValueChanged)="onSelectLayer($event)"
+  ></dx-select-box> -->
+  <div id="map"></div>
+  <section class="align-center">
+    <p *ngIf="address">Производим оценку : {{ address }}</p>
+  </section>
+</div>

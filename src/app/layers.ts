@@ -25,8 +25,22 @@ const google = L.tileLayer(
   { maxZoom: 19 }
 );
 
+// var OffsetTileLayer = L.TileLayer.extend({
+//   _getTilePos: function (coords: any) {
+//     var pos = L.TileLayer.prototype._getTilePos.call(this, coords);
+//     console.log(coords, pos);
+//     return pos.add([25, 25]);
+//   },
+// });
+// 'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}',
+
 const yandex = L.tileLayer(
-  'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}',
+  '  http://vec01.maps.yandex.net/tiles?l=skl&x={x}&y={y}&z={z}&g={g}',
+  { maxZoom: 19 }
+);
+
+const grayOSM = L.tileLayer(
+  'https://a.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
   { maxZoom: 19 }
 );
 
@@ -59,5 +73,10 @@ export const LAYERS: Array<ILayer> = [
     id: 4,
     layer: gis2,
     layerName: '2 Gis',
+  },
+  {
+    id: 5,
+    layer: grayOSM,
+    layerName: 'gray OSM',
   },
 ];

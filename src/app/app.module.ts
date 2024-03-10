@@ -6,19 +6,30 @@ import { AppComponent } from './app.component';
 import {
   DxButtonModule,
   DxSelectBoxModule,
+  DxSliderModule,
+  DxTabPanelModule,
+  DxTabsModule,
   DxVectorMapModule,
 } from 'devextreme-angular';
+import { LoadingService } from './services/loading';
+import { HttpClientModule } from '@angular/common/http';
+import { HelloComponent } from './hello/hello.component';
+import { MapComponent } from './map/map.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, HelloComponent, MapComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
     DxButtonModule,
     DxVectorMapModule,
     DxSelectBoxModule,
+    DxSliderModule,
+    DxTabPanelModule,
+    DxTabsModule,
+    HttpClientModule,
   ],
-  providers: [],
+  providers: [LoadingService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
