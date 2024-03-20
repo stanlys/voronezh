@@ -5,6 +5,9 @@ import { daDataService } from '../services/dadata';
 import { ValueChangedEvent } from 'devextreme/ui/select_box';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
+import { GeoRaster } from 'georaster-layer-for-leaflet';
+import GeoTIFF from 'geotiff';
+import { RASTERS } from '../rasters';
 
 @Component({
   selector: 'app-map',
@@ -12,7 +15,7 @@ import '@geoman-io/leaflet-geoman-free';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements AfterViewInit {
-  public opacityValue = 100;
+  public opacityValue = 50;
 
   public rasters: L.ImageOverlay | null = null;
 
@@ -21,7 +24,29 @@ export class MapComponent implements AfterViewInit {
 
   public address = '';
 
+  public lat: number = 0;
+  public lng: number = 0;
+
+  public aaa = '';
+
+  public iconOption: L.IconOptions = {
+    iconUrl: 'assets/MarksIcons/parks.png',
+    iconSize: [50, 50],
+  };
+
+  isAddMarker = false;
+  isStart = false;
+
   public selectedLayer: L.Layer;
+  public marker: L.Marker | null = null;
+
+  public selectedLL: L.LatLng = new L.LatLng(51.67092, 39.20157);
+
+  public rasterlist = RASTERS;
+  public rasterIndex = 0;
+  public mapTitle = '';
+
+  public treeColor = '#008000';
 
   map: L.Map | null = null;
 
@@ -30,11 +55,10 @@ export class MapComponent implements AfterViewInit {
   }
 
   createMap() {
-    this.map = L.map('map', { pmIgnore: false }).setView(
-      [51.6, 39.2],
-      12
-    );
-    console.log(this.map);
+    this.map = L.map('map', {
+      pmIgnore: false,
+      attributionControl: false,
+    }).setView([51.67092, 39.20157], 16);
     this.loadMap();
     // if (this.map) {
     this.map.pm.setLang('ru');
@@ -43,6 +67,42 @@ export class MapComponent implements AfterViewInit {
       console.log('setmarker');
       const _ll = (e.layer as unknown as any)._latlng as L.LatLng;
       this.dadata.getAddress(_ll.lat, _ll.lng);
+    });
+
+    this.map.on('mousemove', (e) => {
+      const _ll = e.latlng as L.LatLng;
+      let lat = Math.round(_ll.lat * 100000) / 100000;
+      let lng = Math.round(_ll.lng * 100000) / 100000;
+      this.lat = lat;
+      this.lng = lng;
+    });
+  }
+
+  logXY(e: any): void {
+    const _ll = e.latlng as L.LatLng;
+    let lat = Math.round(e.lat * 100000) / 100000;
+    let lng = Math.round(e.lng * 100000) / 100000;
+    // this.lat = _ll.lat;
+    // this.lng = _ll.lng;
+
+    this.aaa = `${Math.random()}`;
+    console.log(this.lat);
+  }
+
+  addMarker(e: any): void {
+    this.iconOption.iconUrl = 'assets/MarksIcons/parks.png';
+    let ourCustomIcon = L.icon(this.iconOption);
+    this.isAddMarker = true;
+    this.map?.on('click', (e) => {
+      this.selectedLL = e.latlng;
+      this.marker = L.marker(e.latlng, { icon: ourCustomIcon });
+
+      if (this.map) this.marker.addTo(this.map);
+      this.isAddMarker = false;
+      const _ll = e.latlng as L.LatLng;
+      this.dadata.getAddress(_ll.lat, _ll.lng);
+      this.marker.bindPopup('');
+      this.map?.off('click');
     });
   }
 
@@ -56,7 +116,6 @@ export class MapComponent implements AfterViewInit {
     //   this.loadMap();
     //   // if (this.map) {
     //   this.map.pm.setLang('ru');
-
     //   this.map.on('pm:create', (e) => {
     //     console.log('setmarker');
     //     const _ll = (e.layer as unknown as any)._latlng as L.LatLng;
@@ -65,11 +124,14 @@ export class MapComponent implements AfterViewInit {
     // }, 5000);
   }
 
+  startTest() {
+    this.loadtiff();
+    this.isStart = true;
+  }
+
   ngAfterContentInit(): void {}
 
   async loadtiff(): Promise<void> {
-    // const a1 = L.latLng(51.55281429059435, 39.06612136706727);
-    // const a2 = L.latLng(51.78934592330817, 39.33514360867035);
     // const b: L.LatLngBoundsExpression = [
     //   [51.55281429059435, 39.06612136706727],
     //   [51.78934592330817, 39.33514360867035],
@@ -77,18 +139,88 @@ export class MapComponent implements AfterViewInit {
     // this.rasters = L.imageOverlay('assets/test1.webp', b, {
     //   opacity: this.opacityValue / 100,
     // });
-    // if (this.map) this.rasters.addTo(this.map);
+
+    const currentRaster = this.rasterlist[this.rasterIndex];
+    this.mapTitle = currentRaster.name;
+    this.opacityValue = currentRaster.opacity;
+
+    this.rasters = L.imageOverlay(
+      '/assets/' + currentRaster.src,
+      currentRaster.xy,
+      {
+        opacity: currentRaster.opacity,
+      }
+    );
+    if (this.map) this.rasters.addTo(this.map);
+    this.treeColor = '#008000';
+    this.map?.flyTo(this.selectedLL, 12);
   }
 
-  // changedOpacity(value: any): void {
-  //   this.opacityValue = value.value;
-  //   if (this.rasters) {
-  //     this.rasters.setOpacity(this.opacityValue / 100);
-  //   }
-  // }
+  public nextRaster(): void {
+    this.rasterIndex = this.rasterIndex + 1;
+    if (this.map) this.rasters?.removeFrom(this.map);
+
+    this.loadtiff();
+    console.log(this.rasterlist);
+  }
+
+  public prevRaster(): void {
+    if (this.map) this.rasters?.removeFrom(this.map);
+    if (this.rasterIndex > 0) this.rasterIndex--;
+    this.loadtiff();
+  }
+
+  changedOpacity(value: any): void {
+    this.opacityValue = value.value;
+    if (this.rasters) {
+      this.rasters.setOpacity(this.opacityValue / 100);
+    }
+  }
+
+  saveMarker(): void {
+    const sum =
+      this.rasterlist.reduce((sum, el) => (sum = sum + el.mark), 0) /
+      this.rasterlist.length;
+    let mark = '';
+    if (sum >= 75) {
+      this.iconOption.iconUrl = 'assets/100.png';
+      mark = 'Отлично';
+    }
+    if (sum >= 50 && sum < 75) {
+      this.iconOption.iconUrl = 'assets/75.png';
+      mark = 'Хорошо';
+    }
+    if (sum >= 25 && sum < 50) {
+      this.iconOption.iconUrl = 'assets/50.png';
+      mark = 'Удовлетрительно';
+    }
+    if (sum < 25) {
+      this.iconOption.iconUrl = 'assets/25.png';
+      mark = 'Плохо';
+    }
+    if (this.marker) {
+      this.marker.setIcon(L.icon(this.iconOption));
+      this.marker.bindTooltip(
+        `<p>${this.address}</p> <p> Ваша оценка: ${mark}</p>`
+      );
+    }
+    this.rasterIndex = 0;
+    this.isStart = false;
+    this.rasters?.setOpacity(0);
+  }
+
+  changedMark(value: any): void {
+    const mark = value.value;
+    if (mark >= 75) this.treeColor = '#008000';
+    if (mark >= 50 && mark < 75) this.treeColor = '#9acd32';
+    if (mark >= 25 && mark < 50) this.treeColor = '#ffff00';
+    if (mark < 25) this.treeColor = '#ff0000';
+
+    this.rasterlist[this.rasterIndex].mark = value.value;
+  }
+
   ngOnInit(): void {
     this.dadata.address$.subscribe((v) => {
-      console.log(v.suggestions.length);
       if (v.suggestions.length > 0) this.address = v.suggestions[0].value;
     });
 
@@ -263,8 +395,7 @@ export class MapComponent implements AfterViewInit {
     // });
     // this.map.addControl(drawControl);
 
-    const url = 'assets/tiff/test1.tif';
-    this.loadtiff();
+    // this.loadtiff();
   }
 }
 
