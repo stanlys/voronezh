@@ -8,7 +8,15 @@
     <app-hello></app-hello>
   </dxi-item>
   <dxi-item title="Презентация" icon="isnotblank">
-    <p></p>
+    <dx-gallery
+      #gallery
+      id="gallery"
+      [dataSource]="dataSource"
+      height="800"
+      [loop]="true"
+      [showNavButtons]="true"
+      [showIndicator]="true"
+    ></dx-gallery>
   </dxi-item>
   <dxi-item title="Карта" icon="map">
     <app-map></app-map>

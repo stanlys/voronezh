@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {
   DxButtonModule,
+  DxGalleryModule,
   DxSelectBoxModule,
   DxSliderModule,
   DxTabPanelModule,
@@ -27,6 +28,7 @@ import { MapComponent } from './map/map.component';
     DxSliderModule,
     DxTabPanelModule,
     DxTabsModule,
+    DxGalleryModule,
     HttpClientModule,
   ],
   providers: [LoadingService],

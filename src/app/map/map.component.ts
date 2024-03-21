@@ -207,6 +207,8 @@ export class MapComponent implements AfterViewInit {
     this.rasterIndex = 0;
     this.isStart = false;
     this.rasters?.setOpacity(0);
+    this.address = '';
+    this.isStart = false;
   }
 
   changedMark(value: any): void {

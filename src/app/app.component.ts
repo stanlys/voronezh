@@ -11,6 +11,19 @@ export class AppComponent {
   projection: any;
   customProjection: any;
 
+  dataSource: string[] = [
+    'assets/present/1.png',
+    'assets/present/2.png',
+    'assets/present/3.png',
+    'assets/present/4.png',
+    'assets/present/5.png',
+    'assets/present/6.png',
+    'assets/present/7.png',
+    'assets/present/8.png',
+    'assets/present/9.png',
+    'assets/present/10.png',
+  ];
+
   // public toggleView(): void {
   //   this.isViewVoronezh = !this.isViewVoronezh;
   //   if (this.map) this.map.pm.toggleControls();
