@@ -226,6 +226,10 @@ export class MapComponent implements AfterViewInit {
       if (v.suggestions.length > 0) this.address = v.suggestions[0].value;
     });
 
+    this.dadata.straddress$.subscribe((v) => {
+      this.address = v;
+    });
+
     //   this.loading.loadtiff();
 
     //   this.customProjection = {
