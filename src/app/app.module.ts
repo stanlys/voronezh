@@ -16,9 +16,10 @@ import { LoadingService } from './services/loading';
 import { HttpClientModule } from '@angular/common/http';
 import { HelloComponent } from './hello/hello.component';
 import { MapComponent } from './map/map.component';
+import { MeButtonDirective } from './directive/me-button.directive';
 
 @NgModule({
-  declarations: [AppComponent, HelloComponent, MapComponent],
+  declarations: [AppComponent, HelloComponent, MapComponent, MeButtonDirective],
   imports: [
     BrowserModule,
     AppRoutingModule,
